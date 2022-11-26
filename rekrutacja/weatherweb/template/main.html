@@ -1,0 +1,26 @@
+{% extends 'index.html' %}
+
+{% block content %}
+<br>
+<div class="container">
+    <h5>Provide city name or coordinates to check weather</h5>
+    <form action="" method="post">
+        {% csrf_token %}
+        {{form.as_p}}
+        <button type="submit">Search</button>
+    </form>
+</div>
+<br>
+{% if weather %}
+<div>
+    City: {{ city }}<br>
+    Temp: {{ weather.current.temp }}<br>
+    Temp feel: {{ weather.current.feels_like }}<br>
+    Pressure: {{ weather.current.pressure }}<br>
+    Humidity: {{ weather.current.humidity }}<br>
+    Clouds: {{ weather.current.clouds }}<br>
+    Wind Speed: {{ weather.current.wind_speed }}<br>
+</div>
+{% endif %}
+
+{% endblock %}
