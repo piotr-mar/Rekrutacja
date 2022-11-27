@@ -1,11 +1,8 @@
 import os
-import requests
 
+import requests
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
 from django.views import View
 
 from weatherweb.forms import CityForm
@@ -13,102 +10,76 @@ from weatherweb.forms import CityForm
 
 # Create your views here.
 
-
-def index(request):
-    return render(request, "index.html", {})
-
-
-def login_user(request):
-    if request.method == "POST":
-        username = request.POST["username"]
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            messages.success(request, ("Successfully login."))
-            return redirect("main")
-        else:
-            messages.success(request, ("Error during login. Try again."))
-            return redirect("login")
-    return render(request, 'user/login.html', {})
-
-
-def logout_user(request):
-    logout(request)
-    messages.success(request, ("Successfuly logout"))
-    return redirect('main')
-
-
-def register_user(request):
-    if request.method == "POST":
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password1']
-            user = authenticate(request, username=username, password=password)
-            login(request, user)
-            messages.success(request, ("Successfuly register and login"))
-            return redirect('main')
-    else:
-        form = UserCreationForm()
-    return render(request, "user/register.html", {'form': form})
-
-
 class CityWeather(View):
     form = CityForm()
     ctx = {"form": form}
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.lat = None
+        self.lon = None
+        self.city = None
+
     def get(self, request):
-        return render(request, "main.html", self.ctx)
+        return render(request, "weather.html", self.ctx)
 
     def post(self, request):
         form = CityForm(request.POST)
         if form.is_valid():
-            city = form.cleaned_data['city']
-            lon = form.cleaned_data['lon']
-            lat = form.cleaned_data['lat']
+            self.city = form.cleaned_data['city']
+            self.lon = form.cleaned_data['lon']
+            self.lat = form.cleaned_data['lat']
+
             new_city_weather = form.save(commit=False)
 
-            if city and not (lon or lat):
-                lon, lat = self._get_coordinates(city)
-                new_city_weather['lon'] = lon
-                new_city_weather['lat'] = lat
+            if self.city and not (self.lon or self.lat):
+                self._get_coordinates_from_city(request)
+                new_city_weather.lon = self.lon
+                new_city_weather.lat = self.lat
 
-            if (lon or lat) and not city:
-                city = self._get_city(lon, lat)
-                new_city_weather['city'] = city
+            elif (self.lon and self.lat) and not self.city:
+                self._get_city_from_coordinates(request)
+                new_city_weather.city = self.city
 
             form.save()
-            self.ctx['weather'] = self._get_weather(lon, lat)
-            self.ctx['city'] = city
-            return render(request, "main.html", self.ctx)
 
-    def _get_weather(self, lon, lat):
-        url = "https://api.openweathermap.org/data/2.5/weather?lat={}&lon={}&appid={dfdd54bdbd96419492c27b9d97d9366b}"
+            self.ctx['forecast'] = self._get_forecast()
+            self.ctx['weather'] = self._get_weather()
+            self.ctx['city'] = self.city
+            return render(request, "weather.html", self.ctx)
+
+    def _get_forecast(self):
+        url = 'https://api.openweathermap.org/data/2.5/forecast?lat={}&lon={}&units={}&cnt={}&appid={}'
+        units = "metric"
+        cnt = 5
+        api_key = os.getenv('API')
+        forecast = requests.get(url.format(self.lat, self.lon, units, cnt, api_key)).json()
+        return forecast
+
+    def _get_weather(self):
+        url = "https://api.openweathermap.org/data/2.5/weather?lat={}&lon={}&units={}&appid={}"
         units = "metric"
         api_key = os.getenv('API')
-        weather = requests.get(url.format(lat, lon, units, api_key)).json()
+        weather = requests.get(url.format(self.lat, self.lon, units, api_key)).json()
         return weather
 
-    def _get_city(self, lon, lat):
+    def _get_city_from_coordinates(self, request):
         url = "http://api.openweathermap.org/geo/1.0/reverse?lat={}&lon={}&limit=1&appid={}"
         api_key = os.getenv('API')
-        city = requests.get(url.format(lat, lon, api_key)).json()
-        return city[0]["name"]
+        city = requests.get(url.format(self.lat, self.lon, api_key)).json()
+        try:
+            self.city = city[0]["name"]
+        except KeyError:
+            messages.error(request, "Error 401 - Wrong API Key")
+            return redirect('main')
 
-    def _get_coordinates(self, city):
+    def _get_coordinates_from_city(self, request):
         url = "http://api.openweathermap.org/geo/1.0/direct?q={}&limit=1&appid={}"
         api_key = os.getenv('API')
-        coordinates = requests.get(url.format(city, api_key)).json()
-        return coordinates[0]['lon'], coordinates[0]["lat"]
-
-    def _check_form_fields(self):
-        pass
-
-# def get_city_weather(request):
-#     if request.method == 'POST':
-#         pass
-#     form = CityForm()
-#     ctx = {"form": form}
-#     return render(request, "main.html", ctx)
+        coordinates = requests.get(url.format(self.city, api_key)).json()
+        try:
+            self.lon = coordinates[0]['lon']
+            self.lat = coordinates[0]["lat"]
+        except KeyError:
+            messages.error(request, "Error 401 - Wrong API Key")
+            return redirect('main')

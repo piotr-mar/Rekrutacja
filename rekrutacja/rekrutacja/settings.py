@@ -55,7 +55,7 @@ ROOT_URLCONF = 'rekrutacja.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['weatherweb/template'],
+        'DIRS': ['weatherweb/template', 'usermanagement/template', 'template'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

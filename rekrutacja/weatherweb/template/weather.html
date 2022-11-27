@@ -1,0 +1,47 @@
+{% extends 'index.html' %}
+{% load timetags %}
+
+{% block content %}
+<br>
+<div class="container">
+    <h5>Provide city name or coordinates to check weather</h5>
+    <form action="" method="post">
+        {% csrf_token %}
+        {{form.as_p}}
+        <button type="submit">Search</button>
+    </form>
+</div>
+<br>
+<br>
+<br>
+{% if weather %}
+<div class="container">
+    <h3>City: {{ city }}</h3>
+    <p>Weather for {{weather.dt | convert_timestamp }} local time:</p>
+    Temp: {{ weather.main.temp }}<br>
+    Temp feel: {{ weather.main.feels_like }}<br>
+    Pressure: {{ weather.main.pressure }}<br>
+    Humidity: {{ weather.main.humidity }}<br>
+    Clouds: {{ weather.clouds.all }}<br>
+    Wind Speed: {{ weather.wind.speed }}<br>
+</div>
+
+{% if forecast %}
+<div class="container">
+    <h4>Forecast</h4>
+{% for day in forecast.list %}
+    Date: {{ day.dt | convert_timestamp }}<br>
+    Temp: {{ day.main.temp }}<br>
+    Temp feel: {{ day.main.feels_like }}<br>
+    Pressure: {{ day.main.pressure }}<br>
+    Humidity: {{ day.main.humidity }}<br>
+    Clouds: {{ day.clouds.all }}<br>
+    Wind Speed: {{ day.wind.speed }}<br>
+    <br>
+    <br>
+    {% endfor %}
+</div>
+{% endif %}
+{% endif %}
+
+{% endblock %}
