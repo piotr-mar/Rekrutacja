@@ -2,20 +2,7 @@
 {% load timetags %}
 
 {% block content %}
-<br>
-<div class="container">
-    <h5>Provide city name or coordinates to check weather</h5>
-    <form action="" id="city_form" method="post">
-        {% csrf_token %}
-        {{form.as_p}}
-        <button type="submit" name="city_form">Search</button>
-    </form>
-    <a href="{% url 'search' %}"><button type="reset" style="background-color: red; color: white" name="reset">Reset</button></a>
-</div>
-<br>
-<br>
-<br>
-{% if data %}
+{% if  data and user == data.user %}
 <div class="container">
     <h3>City: {{ data.city }} </h3>
     <p>Weather for {{ data.weather.dt | convert_timestamp }} local time:</p>
@@ -25,18 +12,6 @@
     Humidity: {{ data.weather.main.humidity }}<br>
     Clouds: {{ data.weather.clouds.all }}<br>
     Wind Speed: {{ data.weather.wind.speed }}<br>
-    {% if user.is_authenticated %}
-    <div class="container">
-        {% if data.user %}
-        <button type="submit" form="city_form" name="favourite" disabled>Favourite</button>
-        {% else %}
-        <form action="" method="post">
-            {% csrf_token %}
-            <button type="submit" form="city_form" name="favourite">Add to Favourite</button>
-        </form>
-        {% endif %}
-    </div>
-    {% endif %}
 </div>
 <br>
 {% if data.forecast %}
@@ -60,5 +35,10 @@
     </div>
 </div>
 {% endif %}
+{% else %}
+<div class="container text-center">
+    <h2>Welcome to WeatherForecast by PMA</h2>
+</div>
 {% endif %}
+
 {% endblock %}
