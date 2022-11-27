@@ -25,28 +25,35 @@ class CityWeather(View):
 
     def post(self, request):
         form = CityForm(request.POST)
+        form_handler = None
+
         if form.is_valid():
             self.city = form.cleaned_data['city']
             self.lon = form.cleaned_data['lon']
             self.lat = form.cleaned_data['lat']
+            form_handler = form.save(commit=False)
+            if 'favourite' in request.POST:
+                form_handler.user = request.user
 
-            new_city_weather = form.save(commit=False)
 
-            if self.city and not (self.lon or self.lat):
-                self._get_coordinates_from_city(request)
-                new_city_weather.lon = self.lon
-                new_city_weather.lat = self.lat
 
-            elif (self.lon and self.lat) and not self.city:
-                self._get_city_from_coordinates(request)
-                new_city_weather.city = self.city
+                messages.success(request, "Added to favourites")
+            else:
+                if self.city and not (self.lon or self.lat):
+                    self._get_coordinates_from_city(request)
+                    form_handler.lon = self.lon
+                    form_handler.lat = self.lat
 
-            form.save()
+                elif (self.lon and self.lat) and not self.city:
+                    self._get_city_from_coordinates(request)
+                    form_handler.city = self.city
+            form_handler.save()
 
-            self.ctx['forecast'] = self._get_forecast()
-            self.ctx['weather'] = self._get_weather()
-            self.ctx['city'] = self.city
-            return render(request, "weather.html", self.ctx)
+        self.ctx['forecast'] = self._get_forecast()
+        self.ctx['weather'] = self._get_weather()
+        self.ctx['city'] = self.city
+        self.ctx['form'] = CityForm(instance=form_handler)
+        return render(request, "weather.html", self.ctx)
 
     def _get_forecast(self):
         url = 'https://api.openweathermap.org/data/2.5/forecast?lat={}&lon={}&units={}&cnt={}&appid={}'

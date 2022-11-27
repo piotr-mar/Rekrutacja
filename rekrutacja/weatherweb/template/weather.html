@@ -5,10 +5,10 @@
 <br>
 <div class="container">
     <h5>Provide city name or coordinates to check weather</h5>
-    <form action="" method="post">
+    <form action="" id="city_form" method="post">
         {% csrf_token %}
         {{form.as_p}}
-        <button type="submit">Search</button>
+        <button type="submit" name="city_form">Search</button>
     </form>
 </div>
 <br>
@@ -16,7 +16,7 @@
 <br>
 {% if weather %}
 <div class="container">
-    <h3>City: {{ city }}</h3>
+    <h3>City: {{ city }} </h3>
     <p>Weather for {{weather.dt | convert_timestamp }} local time:</p>
     Temp: {{ weather.main.temp }}<br>
     Temp feel: {{ weather.main.feels_like }}<br>
@@ -24,6 +24,25 @@
     Humidity: {{ weather.main.humidity }}<br>
     Clouds: {{ weather.clouds.all }}<br>
     Wind Speed: {{ weather.wind.speed }}<br>
+    {% if user.is_authenticated %}
+    <div class="container">
+    {% if messages %}
+    {% for message in messages %}
+    {% if message.tags == 'error' %}
+    <div class="alert alert-danger" role="alert">
+        {{ message }}
+    </div>
+    {% else %}
+    <div class="alert alert-success" role="alert">
+        {{message}}
+    </div>
+
+    {% endif %}
+        <form action="" method="post">
+        {% csrf_token %}
+        <button type="submit" form="city_form" name="favourite">Add to Favourite</button>
+        </form>
+    {% endif %}
 </div>
 
 {% if forecast %}
