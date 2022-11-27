@@ -34,9 +34,6 @@ class CityWeather(View):
             form_handler = form.save(commit=False)
             if 'favourite' in request.POST:
                 form_handler.user = request.user
-
-
-
                 messages.success(request, "Added to favourites")
             else:
                 if self.city and not (self.lon or self.lat):
