@@ -14,30 +14,33 @@
 <br>
 <br>
 <br>
-{% if weather %}
+{% if data %}
 <div class="container">
-    <h3>City: {{ city }} </h3>
-    <p>Weather for {{weather.dt | convert_timestamp }} local time:</p>
-    Temp: {{ weather.main.temp }}<br>
-    Temp feel: {{ weather.main.feels_like }}<br>
-    Pressure: {{ weather.main.pressure }}<br>
-    Humidity: {{ weather.main.humidity }}<br>
-    Clouds: {{ weather.clouds.all }}<br>
-    Wind Speed: {{ weather.wind.speed }}<br>
+    <h3>City: {{ data.city }} </h3>
+    <p>Weather for {{ data.weather.dt | convert_timestamp }} local time:</p>
+    Temp: {{ data.weather.main.temp }}<br>
+    Temp feel: {{ data.weather.main.feels_like }}<br>
+    Pressure: {{ data.weather.main.pressure }}<br>
+    Humidity: {{ data.weather.main.humidity }}<br>
+    Clouds: {{ data.weather.clouds.all }}<br>
+    Wind Speed: {{ data.weather.wind.speed }}<br>
     {% if user.is_authenticated %}
-    <div class="container">
-    {% if messages %}
-    {% for message in messages %}
-    {% if message.tags == 'error' %}
-    <div class="alert alert-danger" role="alert">
-        {{ message }}
-    </div>
-    {% else %}
-    <div class="alert alert-success" role="alert">
-        {{message}}
-    </div>
+        <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'error' %}
+                <div class="alert alert-danger" role="alert">
+                    {{ message }}
+                </div>
+                {% else %}
+                <div class="alert alert-success" role="alert">
+                    {{message}}
+                </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        </div>
 
-    {% endif %}
         <form action="" method="post">
         {% csrf_token %}
         <button type="submit" form="city_form" name="favourite">Add to Favourite</button>
@@ -45,10 +48,10 @@
     {% endif %}
 </div>
 
-{% if forecast %}
+{% if data.forecast %}
 <div class="container">
     <h4>Forecast</h4>
-{% for day in forecast.list %}
+{% for day in data.forecast.list %}
     Date: {{ day.dt | convert_timestamp }}<br>
     Temp: {{ day.main.temp }}<br>
     Temp feel: {{ day.main.feels_like }}<br>
