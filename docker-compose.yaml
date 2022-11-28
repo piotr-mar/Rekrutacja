@@ -1,0 +1,11 @@
+version: '3.9'
+
+services:
+  weather-web-dev:
+    image: weather-web-dev
+    platform: linux/amd64
+    build:
+      context: ./ci/docker/
+    volumes:
+      - ./rekrutacja:/repo
+
