@@ -21,5 +21,15 @@ You can also use run command to build and run docker container.
 ## WeatherApp
 Inside docker in repo dir type:
 ```bash
-python3 manage.py 
+python3 manage.py makemigrations
+
+python3 manage.py migrate
+
+python3 manage.py runserver
+```
+In web browser go to address: http://127.0.0.1:8000/
+
+If you want to create superuser run command:
+```bash
+python3 manage.py createsuperuser
 ```
