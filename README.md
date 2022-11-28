@@ -19,6 +19,11 @@ For building docker run command:
 You can also use run command to build and run docker container.
 
 ## WeatherApp
+Before running script you have to add yours api key from openweathermap.org as API env. variable
+```bash
+export $API=<your api key from openweathermap>
+```
+
 Inside docker in repo dir type:
 ```bash
 python3 manage.py makemigrations
