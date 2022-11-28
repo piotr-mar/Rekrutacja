@@ -13,4 +13,4 @@ class CityForm(ModelForm):
 
     class Meta:
         model = WeatherCity
-        fields = ["city", "lon", "lat"]
+        fields = ["city", "lon", "lat", "units"]

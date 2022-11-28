@@ -5,7 +5,7 @@
 {% if  data and user == data.user %}
 <div class="container">
     <h3>City: {{ data.city }} </h3>
-    <p>Weather for {{ data.weather.dt | convert_timestamp }} local time:</p>
+    <p>Date {{ data.weather.dt | convert_timestamp }}</p>
     Temp: {{ data.weather.main.temp }}<br>
     Temp feel: {{ data.weather.main.feels_like }}<br>
     Pressure: {{ data.weather.main.pressure }}<br>
@@ -17,17 +17,17 @@
 {% if data.forecast %}
 <h4>Forecast</h4>
 <div class="container">
-    <div class="container text-center">
+    <div class="container text-left">
         <div class="row">
             {% for day in data.forecast.list %}
             <div class="col">
-                Date: {{ day.dt | convert_timestamp }}<br>
-                Temp: {{ day.main.temp }}<br>
-                Temp feel: {{ day.main.feels_like }}<br>
-                Pressure: {{ day.main.pressure }}<br>
-                Humidity: {{ day.main.humidity }}<br>
-                Clouds: {{ day.clouds.all }}<br>
-                Wind Speed: {{ day.wind.speed }}<br>
+                Date: {{ day.dt | convert_timestamp }} <br>
+                Temp: {{ day.main.temp }} {% if data.units == "metric" %} C {%else%} K {%endif%}<br>
+                Temp feel: {{ day.main.feels_like }} {% if data.units == "metric" %} C {%else%} K {%endif%}<br>
+                Pressure: {{ day.main.pressure }} hPa<br>
+                Humidity: {{ day.main.humidity }} %<br>
+                Clouds: {{ day.clouds.all }} %<br>
+                Wind Speed: {{ day.wind.speed }} {% if data.units == "metric" %} m/s {%else%} mil/h {%endif%}<br>
 
             </div>
             {% endfor %}

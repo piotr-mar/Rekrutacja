@@ -12,7 +12,7 @@ class WeatherAdmin(admin.ModelAdmin):
         "lon",
         "lat",
         "user",
-        "metric",
+        "units",
         "weather",
         "forecast",
         "create_at",

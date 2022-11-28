@@ -7,5 +7,5 @@ services:
     build:
       context: ./ci/docker/
     volumes:
-      - .:/repo
+      - ./rekrutacja:/repo
 

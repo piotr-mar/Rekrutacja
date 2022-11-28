@@ -8,9 +8,10 @@ class WeatherCity(models.Model):
     lon = models.FloatField(blank=True, null=True)
     lat = models.FloatField(blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
-    metric = models.CharField(
+    units = models.CharField(
         max_length=16,
         choices=[("metric", "metric"), ("imperial", "imperial")],
+        default=("metric", "metric"),
         null=True,
         blank=True,
     )
